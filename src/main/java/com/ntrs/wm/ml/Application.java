@@ -2,6 +2,9 @@ package com.ntrs.wm.ml;
 
 import com.marklogic.client.DatabaseClient;
 import com.marklogic.client.DatabaseClientFactory;
+import com.marklogic.client.document.DocumentPage;
+import com.marklogic.client.io.StringHandle;
+import com.marklogic.client.query.QueryManager;
 
 import javax.net.ssl.SSLContext;
 
@@ -15,26 +18,21 @@ public class Application {
         System.out.println(System.getProperty("java.version")); // prints "11"
         System.out.println(System.getProperty("java.runtime.name")); // prints "OpenJDK Runtime Environment"
         System.out.println(System.getProperty("java.runtime.version")); // prints 11+28
-        String host = "test";
+        String host = "xxxx";
         int port = 8153;
-        String username = "test";
-        String password = "test";
+        String username = "xxxx";
+        String password = "xxxx";
 
         DatabaseClient mlClient = null;
         try {
-                SSLContext sslContext = SSLContext.getInstance("SSLv3");
+                SSLContext sslContext = SSLContext.getInstance("TLSv1.2");
                 sslContext.init(null, null, null);
                 mlClient = DatabaseClientFactory.newClient(host, port,
                         new DatabaseClientFactory.BasicAuthContext(username, password).withSSLContext(sslContext), DatabaseClient.ConnectionType.GATEWAY);
-                /*
-                java.lang.StringIndexOutOfBoundsException: begin 0, end -1, length 2
-	                at java.base/java.lang.String.checkBoundsBeginEnd(String.java:3319)
-	                at java.base/java.lang.String.substring(String.java:1874)
-	                at com.marklogic.client.impl.OkHttpServices.connect(OkHttpServices.java:338)
-	                at com.marklogic.client.DatabaseClientFactory.newClient(DatabaseClientFactory.java:1277)
-	                at com.marklogic.client.DatabaseClientFactory.newClient(DatabaseClientFactory.java:1231)
-	                at com.ntrs.wm.ml.Application.main(Application.java:21)
-                 */
+
+                QueryManager queryManager = mlClient.newQueryManager();
+                DocumentPage page = mlClient.newDocumentManager().read("/WDS/canonical/financialAsset/ee3fb1ba-1511-49ef-937c-7845e6a371a1.json");
+                System.out.println(page.next().getContent(new StringHandle()).get());
         } catch (Exception e) {
             e.printStackTrace();
         }
